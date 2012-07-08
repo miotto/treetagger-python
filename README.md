@@ -1,4 +1,4 @@
 treetagger-python
 =================
 
-A Python based wrapper for interacting with the Treetagger by Helmut Schmid.
+A Python module for interfacing with the Treetagger by Helmut Schmid.
