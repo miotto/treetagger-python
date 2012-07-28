@@ -82,7 +82,7 @@ class TreeTagger(TaggerI):
     def __init__(self, path_to_home=None, language='german', 
                  encoding='utf8', verbose=False):
         """
-        Starts the TreeTagger executable and establishes a connection with it.
+        Initialize the TreeTagger.
 
         :param path_to_home: The TreeTagger binary.
         :param language: Default language is german.
