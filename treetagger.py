@@ -80,7 +80,7 @@ class TreeTagger(TaggerI):
     """
 
     def __init__(self, path_to_home=None, language='german', 
-                 encoding='utf8', verbose=False):
+                 encoding='utf8', verbose=False, abbreviation_list=None):
         """
         Initialize the TreeTagger.
 
@@ -98,6 +98,7 @@ class TreeTagger(TaggerI):
                         '/Applications/bin', '~/bin', '~/Applications/bin',
                         '~/work/TreeTagger/cmd']
         treetagger_paths = map(os.path.expanduser, treetagger_paths)
+        self._abbr_list = abbreviation_list
 
         try:
             if language in _treetagger_languages[encoding]:
@@ -140,8 +141,12 @@ class TreeTagger(TaggerI):
             _input = _input.encode(encoding)
 
         # Run the tagger and get the output
-        p = Popen([self._treetagger_bin], 
-                    shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        if(self._abbr_list is None):
+            p = Popen([self._treetagger_bin], 
+                        shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        elif(self._abbr_list is not None):
+            p = Popen([self._treetagger_bin,"-a",self._abbr_list], 
+                        shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         
         (stdout, stderr) = p.communicate(_input)
         treetagger_output = stdout
