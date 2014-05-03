@@ -2,6 +2,10 @@
 
 A Python module for interfacing with the Treetagger by Helmut Schmid.
 
+Copyright (C) 2013 Mirko Otto
+
+For license information, see LICENSE.txt
+
 ## Dependencies
 
 * [TreeTagger](http://www.ims.uni-stuttgart.de/projekte/corplex/TreeTagger/)
