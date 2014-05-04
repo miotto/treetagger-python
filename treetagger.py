@@ -20,7 +20,7 @@ def tUoB(obj, encoding='utf-8'):
             obj = unicode(obj, encoding)
     return obj
 
-_treetagger_url = 'http://www.ims.uni-stuttgart.de/projekte/corplex/TreeTagger'
+_treetagger_url = 'http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/'
 
 _treetagger_languages = {
 u'latin-1':['bulgarian', 'dutch', 'english', 'estonian', 'french', 'german', 'greek', 'italian', 'latin', 'russian', 'spanish', 'swahili'],
