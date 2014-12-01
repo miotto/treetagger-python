@@ -24,7 +24,7 @@ _treetagger_url = 'http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/'
 
 _treetagger_languages = {
 u'latin-1':['bulgarian', 'dutch', 'english', 'estonian', 'french', 'german', 'greek', 'italian', 'latin', 'russian', 'spanish', 'swahili'],
-u'utf8' : ['french', 'german', 'greek', 'italian', 'spanish']}
+u'utf8' : ['french', 'german', 'greek', 'italian', 'spanish', 'portuguese']}
 
 """The default encoding used by TreeTagger: utf8. u'' means latin-1; ISO-8859-1"""
 _treetagger_charset = [u'utf8', u'latin-1']
@@ -96,7 +96,7 @@ class TreeTagger(TaggerI):
         """
         treetagger_paths = ['.', '/usr/bin', '/usr/local/bin', '/opt/local/bin',
                         '/Applications/bin', '~/bin', '~/Applications/bin',
-                        '~/work/TreeTagger/cmd']
+                        '~/work/TreeTagger/cmd', '~/tree-tagger/cmd']
         treetagger_paths = map(os.path.expanduser, treetagger_paths)
         self._abbr_list = abbreviation_list
 
