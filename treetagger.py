@@ -96,7 +96,7 @@ class TreeTagger(TaggerI):
         """
         treetagger_paths = ['.', '/usr/bin', '/usr/local/bin', '/opt/local/bin',
                         '/Applications/bin', '~/bin', '~/Applications/bin',
-                        '~/work/TreeTagger/cmd', '~/tree-tagger/cmd']
+                        '~/work/TreeTagger/cmd', '~/tree-tagger/cmd', '/tree-tagger/cmd']
         treetagger_paths = map(os.path.expanduser, treetagger_paths)
         self._abbr_list = abbreviation_list
 
