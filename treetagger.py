@@ -23,18 +23,18 @@ def tUoB(obj, encoding='utf-8'):
 _treetagger_url = 'http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/'
 
 _treetagger_languages = {
-u'latin-1':['bulgarian', 'dutch', 'estonian', 'french', 'german', 'greek', 'italian', 'latin', 'russian', 'spanish', 'swahili'],
-u'utf8' : ['french', 'german', 'greek', 'italian', 'spanish', 'english', 'portuguese']}
+u'latin-1':['latin', 'latinIT', 'mongolian', 'swahili'],
+u'utf-8' : ['bulgarian', 'dutch', 'english', 'estonian', 'finnish', 'french', 'galician', 'german', 'italian', 'polish', 'russian', 'slovak', 'slovak2', 'spanish']}
 
-"""The default encoding used by TreeTagger: utf8. u'' means latin-1; ISO-8859-1"""
-_treetagger_charset = [u'utf8', u'latin-1']
+"""The default encoding used by TreeTagger: utf-8. u'' means latin-1; ISO-8859-1"""
+_treetagger_charset = [u'utf-8', u'latin-1']
 
 class TreeTagger(TaggerI):
     ur"""
     A class for pos tagging with TreeTagger. The input is the paths to:
      - a language trained on training data
      - (optionally) the path to the TreeTagger binary
-     - (optionally) the encoding of the training data (default: utf8)
+     - (optionally) the encoding of the training data (default: utf-8)
 
     This class communicates with the TreeTagger binary via pipes.
 
@@ -44,8 +44,8 @@ class TreeTagger(TaggerI):
         :options: +SKIP
 
         >>> from treetagger import TreeTagger
-        >>> tt = TreeTagger(encoding='latin-1',language='english')
-        >>> tt.tag('What is the airspeed of an unladen swallow ?')
+        >>> tt = TreeTagger(encoding='utf-8',language='english')
+        >>> tt.tag(u'What is the airspeed of an unladen swallow ?')
         [[u'What', u'WP', u'What'],
          [u'is', u'VBZ', u'be'],
          [u'the', u'DT', u'the'],
@@ -80,7 +80,7 @@ class TreeTagger(TaggerI):
     """
 
     def __init__(self, path_to_home=None, language='german', 
-                 encoding='utf8', verbose=False, abbreviation_list=None):
+                 encoding='utf-8', verbose=False, abbreviation_list=None):
         """
         Initialize the TreeTagger.
 
@@ -89,7 +89,7 @@ class TreeTagger(TaggerI):
         :param encoding: The encoding used by the model. Unicode tokens
             passed to the tag() and batch_tag() methods are converted to
             this charset when they are sent to TreeTagger.
-            The default is utf8.
+            The default is utf-8.
 
             This parameter is ignored for str tokens, which are sent as-is.
             The caller must ensure that tokens are encoded in the right charset.
@@ -101,14 +101,12 @@ class TreeTagger(TaggerI):
         self._abbr_list = abbreviation_list
 
         try:
-            if language in _treetagger_languages[encoding]:
+            if encoding in _treetagger_languages.keys() and language in _treetagger_languages[encoding]:
                 if encoding == u'latin-1':
-                    """the executable has no encoding information for latin-1"""
-                    treetagger_bin_name = 'tree-tagger-' + language
                     self._encoding = u'latin-1'
                 else:
-                    treetagger_bin_name = 'tree-tagger-' + language + u'-' + encoding
                     self._encoding = encoding
+                treetagger_bin_name = 'tree-tagger-' + language
 
             else:
                 raise LookupError('NLTK was unable to find the TreeTagger bin!')
@@ -122,9 +120,6 @@ class TreeTagger(TaggerI):
                 url=_treetagger_url,
                 verbose=verbose)
 
-        if encoding in _treetagger_charset:
-            self._encoding = encoding
-        
     def tag(self, sentences):
         """Tags a single sentence: a list of words.
         The tokens should not contain any newline characters.
@@ -149,7 +144,6 @@ class TreeTagger(TaggerI):
                         shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         
         (stdout, stderr) = p.communicate(_input)
-        treetagger_output = stdout
 
         # Check the return code.
         if p.returncode != 0:
@@ -163,8 +157,8 @@ class TreeTagger(TaggerI):
 
         # Output the tagged sentences
         tagged_sentences = []
-        for tagged_word in treetagger_output.strip().split(u'\n'):
-            tagged_word_split = tagged_word.split(u'\t')
+        for tagged_word in treetagger_output.strip().split('\n'):
+            tagged_word_split = tagged_word.split('\t')
             tagged_sentences.append(tagged_word_split)
 
         return tagged_sentences
