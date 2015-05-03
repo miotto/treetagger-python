@@ -10,20 +10,22 @@ For license information, see LICENSE.txt
 Dependencies
 ------------
 
--  `TreeTagger <http://www.ims.uni-stuttgart.de/projekte/corplex/TreeTagger/>`__
+-  `TreeTagger <http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/>`__
 -  Python 2.6
 -  `NLTK <http://nltk.org/>`__
+
+-  treetagger3.py is for Python 3
 
 INSTALLATION
 ------------
 
 Before you install the ``treetagger-python`` package please ensure you
 have downloaded and installed the
-`TreeTagger <http://www.ims.uni-stuttgart.de/projekte/corplex/TreeTagger/>`__
+`TreeTagger <http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/>`__
 itself.
 
 The
-`TreeTagger <http://www.ims.uni-stuttgart.de/projekte/corplex/TreeTagger/>`__
+`TreeTagger <http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/>`__
 is a copyrighted software by Helmut Schmid and
 `IMS <http://www.ims.uni-stuttgart.de/>`__, please read the license
 agreement before you download the TreeTagger package and language
@@ -45,7 +47,7 @@ Tagging a sentence from Python:
 ::
 
     from treetagger import TreeTagger
-    tt = TreeTagger(encoding='latin-1',language='english')
+    tt = TreeTagger(encoding='utf-8',language='english')
     tt.tag('What is the airspeed of an unladen swallow?')
 
 The output is a list of [token, tag, lemma]:
