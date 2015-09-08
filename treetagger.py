@@ -121,9 +121,11 @@ class TreeTagger(TaggerI):
                 searchpath=treetagger_paths,
                 url=_treetagger_url,
                 verbose=verbose)
+        print u'### %s' % self._treetagger_bin
 
         if encoding in _treetagger_charset:
             self._encoding = encoding
+        print u'#### %s' % self._encoding
         
     def tag(self, sentences):
         """Tags a single sentence: a list of words.
