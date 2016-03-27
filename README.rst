@@ -55,6 +55,7 @@ Tagging a sentence from Python:
 The output is a list of [token, tag, lemma]:
 
 ::
+
     [['What', 'WP', 'What'], 
     ['is', 'VBZ', 'be'], 
     ['the', 'DT', 'the'], 
@@ -68,6 +69,7 @@ The output is a list of [token, tag, lemma]:
 Tagging a german sentence from Python:
 
 ::
+
     from treetagger3 import TreeTagger
     tt = TreeTagger(language='german')
     tt.tag('Das Haus hat einen großen hübschen Garten.')
