@@ -3,7 +3,7 @@ treetagger-python
 
 A Python module for interfacing with the Treetagger by Helmut Schmid.
 
-Copyright (C) 2013 Mirko Otto
+Copyright (C) 2016 Mirko Otto
 
 For license information, see LICENSE.txt
 
@@ -11,10 +11,12 @@ Dependencies
 ------------
 
 -  `TreeTagger <http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/>`__
--  Python 2.6
+-  Python 3
 -  `NLTK <http://nltk.org/>`__
-
 -  treetagger3.py is for Python 3
+-  treetagger.py is for old Python 2
+
+Tested with Treetagger 3.2, Python 3.4 and NLTK 3.0.4
 
 INSTALLATION
 ------------
@@ -46,21 +48,38 @@ Tagging a sentence from Python:
 
 ::
 
-    from treetagger import TreeTagger
-    tt = TreeTagger(encoding='utf-8',language='english')
+    from treetagger3 import TreeTagger
+    tt = TreeTagger(language='english')
     tt.tag('What is the airspeed of an unladen swallow?')
 
 The output is a list of [token, tag, lemma]:
 
 ::
+    [['What', 'WP', 'What'], 
+    ['is', 'VBZ', 'be'], 
+    ['the', 'DT', 'the'], 
+    ['airspeed', 'NN', 'airspeed'], 
+    ['of', 'IN', 'of'], 
+    ['an', 'DT', 'an'], 
+    ['unladen', 'JJ', '<unknown>'], 
+    ['swallow', 'NN', 'swallow'], 
+    ['?', 'SENT', '?']]
 
-    [[u'What', u'WP', u'What'],
-    [u'is', u'VBZ', u'be'],
-    [u'the', u'DT', u'the'],
-    [u'airspeed', u'NN', u'airspeed'],
-    [u'of', u'IN', u'of'],
-    [u'an', u'DT', u'an'],
-    [u'unladen', u'JJ', u'<unknown>'],
-    [u'swallow', u'NN', u'swallow'],
-    [u'?', u'SENT', u'?']]
+Tagging a german sentence from Python:
 
+::
+    from treetagger3 import TreeTagger
+    tt = TreeTagger(language='german')
+    tt.tag('Das Haus hat einen großen hübschen Garten.')
+
+The output is a list of [token, tag, lemma]:
+
+::
+    [['Das', 'ART', 'die'], 
+    ['Haus', 'NN', 'Haus'], 
+    ['hat', 'VAFIN', 'haben'], 
+    ['einen', 'ART', 'eine'], 
+    ['großen', 'ADJA', 'groß'], 
+    ['hübschen', 'ADJA', 'hübsch'], 
+    ['Garten', 'NN', 'Garten'], 
+    ['.', '$.', '.']]
