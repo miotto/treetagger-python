@@ -77,6 +77,7 @@ Tagging a german sentence from Python:
 The output is a list of [token, tag, lemma]:
 
 ::
+
     [['Das', 'ART', 'die'], 
     ['Haus', 'NN', 'Haus'], 
     ['hat', 'VAFIN', 'haben'], 
