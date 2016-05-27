@@ -13,8 +13,8 @@ Dependencies
 -  `TreeTagger <http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/>`__
 -  Python 3
 -  `NLTK <http://nltk.org/>`__
--  treetagger3.py is for Python 3
--  treetagger.py is for old Python 2
+-  treetagger.py is for Python 3
+-  treetagger_python2.py is for old Python 2
 
 Tested with Treetagger 3.2, Python 3.4 and NLTK 3.0.4
 
@@ -48,7 +48,7 @@ Tagging a sentence from Python:
 
 ::
 
-    from treetagger3 import TreeTagger
+    from treetagger import TreeTagger
     tt = TreeTagger(language='english')
     tt.tag('What is the airspeed of an unladen swallow?')
 
@@ -70,7 +70,7 @@ Tagging a german sentence from Python:
 
 ::
 
-    from treetagger3 import TreeTagger
+    from treetagger import TreeTagger
     tt = TreeTagger(language='german')
     tt.tag('Das Haus hat einen großen hübschen Garten.')
 
