@@ -13,28 +13,17 @@ from subprocess import Popen, PIPE
 
 from nltk.internals import find_binary, find_file
 from nltk.tag.api import TaggerI
-
-def tUoB(obj, encoding='utf-8'):
-    if isinstance(obj, basestring):
-        if not isinstance(obj, unicode):
-            obj = unicode(obj, encoding)
-    return obj
+from sys import platform as _platform
 
 _treetagger_url = 'http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/'
 
-_treetagger_languages = {
-u'latin-1':['latin', 'latinIT', 'mongolian', 'swahili'],
-u'utf-8' : ['bulgarian', 'dutch', 'english', 'estonian', 'finnish', 'french', 'galician', 'german', 'italian', 'polish', 'russian', 'slovak', 'slovak2', 'spanish']}
-
-"""The default encoding used by TreeTagger: utf-8. u'' means latin-1; ISO-8859-1"""
-_treetagger_charset = [u'utf-8', u'latin-1']
+_treetagger_languages = ['bulgarian', 'dutch', 'english', 'estonian', 'finnish', 'french', 'galician', 'german', 'italian', 'polish', 'russian', 'slovak', 'slovak2', 'spanish']
 
 class TreeTagger(TaggerI):
-    ur"""
-    A class for pos tagging with TreeTagger. The input is the paths to:
+    r"""
+    A class for pos tagging with TreeTagger. The default encoding used by TreeTagger is utf-8. The input is the paths to:
      - a language trained on training data
      - (optionally) the path to the TreeTagger binary
-     - (optionally) the encoding of the training data (default: utf-8)
 
     This class communicates with the TreeTagger binary via pipes.
 
@@ -43,97 +32,85 @@ class TreeTagger(TaggerI):
     .. doctest::
         :options: +SKIP
 
-        >>> from treetagger import TreeTagger
-        >>> tt = TreeTagger(encoding='utf-8',language='english')
-        >>> tt.tag(u'What is the airspeed of an unladen swallow ?')
-        [[u'What', u'WP', u'What'],
-         [u'is', u'VBZ', u'be'],
-         [u'the', u'DT', u'the'],
-         [u'airspeed', u'NN', u'airspeed'],
-         [u'of', u'IN', u'of'],
-         [u'an', u'DT', u'an'],
-         [u'unladen', u'JJ', u'<unknown>'],
-         [u'swallow', u'NN', u'swallow'],
-         [u'?', u'SENT', u'?']]
+        >>> from treetagger3 import TreeTagger
+        >>> tt = TreeTagger(language='english')
+        >>> tt.tag('What is the airspeed of an unladen swallow ?')
+        [['What', 'WP', 'What'],
+         ['is', 'VBZ', 'be'],
+         ['the', 'DT', 'the'],
+         ['airspeed', 'NN', 'airspeed'],
+         ['of', 'IN', 'of'],
+         ['an', 'DT', 'an'],
+         ['unladen', 'JJ', '<unknown>'],
+         ['swallow', 'NN', 'swallow'],
+         ['?', 'SENT', '?']]
 
     .. doctest::
         :options: +SKIP
 
-        >>> from treetagger import TreeTagger
-        >>> tt = TreeTagger()
-        >>> tt.tag(u'Das Haus ist sehr schön und groß. Es hat auch einen hübschen Garten.')
-        [[u'Das', u'ART', u'd'],
-         [u'Haus', u'NN', u'Haus'],
-         [u'ist', u'VAFIN', u'sein'],
-         [u'sehr', u'ADV', u'sehr'],
-         [u'sch\xf6n', u'ADJD', u'sch\xf6n'],
-         [u'und', u'KON', u'und'],
-         [u'gro\xdf', u'ADJD', u'gro\xdf'],
-         [u'.', u'$.', u'.'],
-         [u'Es', u'PPER', u'es'],
-         [u'hat', u'VAFIN', u'haben'],
-         [u'auch', u'ADV', u'auch'],
-         [u'einen', u'ART', u'ein'],
-         [u'h\xfcbschen', u'ADJA', u'h\xfcbsch'],
-         [u'Garten', u'NN', u'Garten'],
-         [u'.', u'$.', u'.']]
+        >>> from treetagger3 import TreeTagger
+        >>> tt = TreeTagger(language='german')
+        >>> tt.tag('Das Haus hat einen großen hübschen Garten.')
+        [['Das', 'ART', 'die'],
+         ['Haus', 'NN', 'Haus'],
+         ['hat', 'VAFIN', 'haben'],
+         ['einen', 'ART', 'eine'],
+         ['großen', 'ADJA', 'groß'],
+         ['hübschen', 'ADJA', 'hübsch'],
+         ['Garten', 'NN', 'Garten'],
+         ['.', '$.', '.']]
     """
 
     def __init__(self, path_to_home=None, language='german', 
-                 encoding='utf-8', verbose=False, abbreviation_list=None):
+                 verbose=False, abbreviation_list=None):
         """
         Initialize the TreeTagger.
 
         :param path_to_home: The TreeTagger binary.
         :param language: Default language is german.
-        :param encoding: The encoding used by the model. Unicode tokens
-            passed to the tag() and batch_tag() methods are converted to
-            this charset when they are sent to TreeTagger.
-            The default is utf-8.
 
-            This parameter is ignored for str tokens, which are sent as-is.
-            The caller must ensure that tokens are encoded in the right charset.
+        The encoding used by the model. Unicode tokens
+        passed to the tag() and batch_tag() methods are converted to
+        this charset when they are sent to TreeTagger.
+        The default is utf-8.
+
+        This parameter is ignored for str tokens, which are sent as-is.
+        The caller must ensure that tokens are encoded in the right charset.
         """
         treetagger_paths = ['.', '/usr/bin', '/usr/local/bin', '/opt/local/bin',
                         '/Applications/bin', '~/bin', '~/Applications/bin',
-                        '~/work/TreeTagger/cmd', '~/tree-tagger/cmd']
-        treetagger_paths = map(os.path.expanduser, treetagger_paths)
+                        '~/work/tmp/treetagger/cmd', '~/tree-tagger/cmd']
+        treetagger_paths = list(map(os.path.expanduser, treetagger_paths))
         self._abbr_list = abbreviation_list
 
-        try:
-            if encoding in _treetagger_languages.keys() and language in _treetagger_languages[encoding]:
-                if encoding == u'latin-1':
-                    self._encoding = u'latin-1'
-                else:
-                    self._encoding = encoding
-                treetagger_bin_name = 'tree-tagger-' + language
-
+        if language in _treetagger_languages:
+            if _platform == "win32":
+                treetagger_bin_name = 'tag-' + language
             else:
-                raise LookupError('NLTK was unable to find the TreeTagger bin!')
-        except KeyError as e:
-                raise LookupError('NLTK was unable to find the TreeTagger bin!')
+                treetagger_bin_name = 'tree-tagger-' + language
+        else:
+            raise LookupError('Language not in language list!')
 
-        self._treetagger_bin = find_binary(
+        try:
+            self._treetagger_bin = find_binary(
                 treetagger_bin_name, path_to_home,
                 env_vars=('TREETAGGER', 'TREETAGGER_HOME'),
                 searchpath=treetagger_paths,
                 url=_treetagger_url,
                 verbose=verbose)
+        except LookupError:
+            print('NLTK was unable to find the TreeTagger bin!')
 
     def tag(self, sentences):
         """Tags a single sentence: a list of words.
         The tokens should not contain any newline characters.
         """
-        encoding = self._encoding
 
         # Write the actual sentences to the temporary input file
         if isinstance(sentences, list):
             _input = '\n'.join((x for x in sentences))
         else:
             _input = sentences
-
-        if isinstance(_input, unicode) and encoding:
-            _input = _input.encode(encoding)
 
         # Run the tagger and get the output
         if(self._abbr_list is None):
@@ -143,17 +120,14 @@ class TreeTagger(TaggerI):
             p = Popen([self._treetagger_bin,"-a",self._abbr_list], 
                         shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         
-        (stdout, stderr) = p.communicate(_input)
+        (stdout, stderr) = p.communicate(bytes(_input, 'UTF-8'))
 
         # Check the return code.
         if p.returncode != 0:
-            print stderr
+            print(stderr)
             raise OSError('TreeTagger command failed!')
 
-        if isinstance(stdout, unicode) and encoding:
-            treetagger_output = stdout.decode(encoding)
-        else:
-            treetagger_output = tUoB(stdout)
+        treetagger_output = stdout.decode('UTF-8')
 
         # Output the tagged sentences
         tagged_sentences = []
