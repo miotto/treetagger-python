@@ -39,7 +39,7 @@ variable ``TREETAGGER_HOME`` to the installation directory of the
 
 ::
 
-    export TREETAGGER_HOME='/path/to/your/TreeTagger/'
+    export TREETAGGER_HOME='/path/to/your/TreeTagger/cmd/'
 
 Usage
 -----
