@@ -32,7 +32,7 @@ class TreeTagger(TaggerI):
     .. doctest::
         :options: +SKIP
 
-        >>> from treetagger3 import TreeTagger
+        >>> from treetagger import TreeTagger
         >>> tt = TreeTagger(language='english')
         >>> tt.tag('What is the airspeed of an unladen swallow ?')
         [['What', 'WP', 'What'],
@@ -48,7 +48,7 @@ class TreeTagger(TaggerI):
     .. doctest::
         :options: +SKIP
 
-        >>> from treetagger3 import TreeTagger
+        >>> from treetagger import TreeTagger
         >>> tt = TreeTagger(language='german')
         >>> tt.tag('Das Haus hat einen großen hübschen Garten.')
         [['Das', 'ART', 'die'],
@@ -120,7 +120,8 @@ class TreeTagger(TaggerI):
             p = Popen([self._treetagger_bin,"-a",self._abbr_list], 
                         shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         
-        (stdout, stderr) = p.communicate(bytes(_input, 'UTF-8'))
+        #(stdout, stderr) = p.communicate(bytes(_input, 'UTF-8'))
+        (stdout, stderr) = p.communicate(str(_input).encode('utf-8'))
 
         # Check the return code.
         if p.returncode != 0:
