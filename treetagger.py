@@ -17,7 +17,7 @@ from sys import platform as _platform
 
 _treetagger_url = 'http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/'
 
-_treetagger_languages = ['bulgarian', 'dutch', 'english', 'estonian', 'finnish', 'french', 'galician', 'german', 'italian', 'polish', 'russian', 'slovak', 'slovak2', 'spanish']
+_treetagger_languages = ['bulgarian', 'dutch', 'english', 'estonian', 'finnish', 'french', 'galician', 'german', 'italian', 'polish', 'russian', 'slovak', 'slovak2', 'spanish', 'portuguese']
 
 class TreeTagger(TaggerI):
     r"""
@@ -79,8 +79,8 @@ class TreeTagger(TaggerI):
         """
         treetagger_paths = ['.', '/usr/bin', '/usr/local/bin', '/opt/local/bin',
                         '/Applications/bin', '~/bin', '~/Applications/bin',
-                        '~/work/tmp/treetagger/cmd', '~/tree-tagger/cmd']
-        treetagger_paths = list(map(os.path.expanduser, treetagger_paths))
+                        '~/work/TreeTagger/cmd', '~/tree-tagger/cmd', '/tree-tagger/bin', '/tree-tagger/cmd', '/var/opt/treetagger/bin', '/var/opt/treetagger/cmd']
+        treetagger_paths = map(os.path.expanduser, treetagger_paths)
         self._abbr_list = abbreviation_list
 
         if language in _treetagger_languages:
