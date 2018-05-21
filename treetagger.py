@@ -17,7 +17,7 @@ from sys import platform as _platform
 
 _treetagger_url = 'http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/'
 
-_treetagger_languages = ['bulgarian', 'dutch', 'english', 'estonian', 'finnish', 'french', 'galician', 'german', 'italian', 'polish', 'russian', 'slovak', 'slovak2', 'spanish', 'portuguese']
+_treetagger_languages = ['bulgarian', 'dutch', 'english', 'estonian', 'finnish', 'french', 'galician', 'german', 'italian',  'latin', 'polish', 'russian', 'slovak', 'slovak2', 'spanish', 'portuguese']
 
 class TreeTagger(TaggerI):
     r"""
