@@ -72,6 +72,7 @@ Initialize by specifying the path ``path_to_treetagger``:
 Show the installed languages:
 
 ::
+
     from treetagger import TreeTagger
     tt = TreeTagger(path_to_treetagger='/path/to/your/TreeTagger/')
     tt.get_installed_lang()
@@ -79,6 +80,7 @@ Show the installed languages:
 The output could look like this
 
 ::
+
     ['english', 'german']
 
 Tagging a sentence from Python:
