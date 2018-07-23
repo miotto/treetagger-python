@@ -8,7 +8,7 @@
 A Python module for interfacing with the Treetagger by Helmut Schmid.
 """
 
-import os
+import os, fnmatch
 from subprocess import Popen, PIPE
 
 from nltk.internals import find_binary, find_file
@@ -17,7 +17,10 @@ from sys import platform as _platform
 
 _treetagger_url = 'http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/'
 
-_treetagger_languages = ['bulgarian', 'dutch', 'english', 'estonian', 'finnish', 'french', 'galician', 'german', 'italian',  'latin', 'polish', 'russian', 'slovak', 'slovak2', 'spanish', 'portuguese']
+def files(path, pattern):
+  for file in os.listdir(path):
+      if (os.path.isfile(os.path.join(path, file)) and fnmatch.fnmatch(file, pattern)):
+          yield file
 
 class TreeTagger(TaggerI):
     r"""
@@ -34,8 +37,8 @@ class TreeTagger(TaggerI):
 
         >>> from treetagger import TreeTagger
         >>> tt = TreeTagger(language='english')
-        >>> tt.tag('What is the airspeed of an unladen swallow ?')
-        [['What', 'WP', 'What'],
+        >>> tt.tag('What is the airspeed of an unladen swallow?')
+        [['What', 'WP', 'what'],
          ['is', 'VBZ', 'be'],
          ['the', 'DT', 'the'],
          ['airspeed', 'NN', 'airspeed'],
@@ -61,13 +64,13 @@ class TreeTagger(TaggerI):
          ['.', '$.', '.']]
     """
 
-    def __init__(self, path_to_home=None, language='german', 
+
+    def __init__(self, path_to_treetagger=None, language='english',
                  verbose=False, abbreviation_list=None):
         """
         Initialize the TreeTagger.
 
-        :param path_to_home: The TreeTagger binary.
-        :param language: Default language is german.
+        :param language: Default language is english.
 
         The encoding used by the model. Unicode tokens
         passed to the tag() and batch_tag() methods are converted to
@@ -77,29 +80,67 @@ class TreeTagger(TaggerI):
         This parameter is ignored for str tokens, which are sent as-is.
         The caller must ensure that tokens are encoded in the right charset.
         """
-        treetagger_paths = ['.', '/usr/bin', '/usr/local/bin', '/opt/local/bin',
-                        '/Applications/bin', '~/bin', '~/Applications/bin',
-                        '~/work/TreeTagger/cmd', '~/tree-tagger/cmd', '/tree-tagger/bin', '/tree-tagger/cmd', '/var/opt/treetagger/bin', '/var/opt/treetagger/cmd']
-        treetagger_paths = map(os.path.expanduser, treetagger_paths)
+        if path_to_treetagger:
+            self._path_to_treetagger = path_to_treetagger
+        else:
+            self._path_to_treetagger = None
+
+        treetagger_paths = ['.']
+        if 'TREETAGGER_HOME' in os.environ:
+            if _platform == "win32":
+                tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'bat'))
+            else:
+                tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'cmd'))
+            treetagger_paths.append(tt_path)
+        elif self._path_to_treetagger:
+            if _platform == "win32":
+                tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'bat'))
+            else:
+                tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'cmd'))
+            treetagger_paths.append(tt_path)
+        else:
+            raise LookupError('Set \'TREETAGGER_HOME\' or use path_to_treetagger!')
+        treetagger_paths = list(map(os.path.expanduser, treetagger_paths))
+
         self._abbr_list = abbreviation_list
 
-        if language in _treetagger_languages:
+        if language in self.get_installed_lang():
             if _platform == "win32":
-                treetagger_bin_name = 'tag-' + language
+                treetagger_bin_name = 'tag-' + language + '.bat'
             else:
                 treetagger_bin_name = 'tree-tagger-' + language
         else:
-            raise LookupError('Language not in language list!')
+            raise LookupError('Language not installed!')
 
         try:
             self._treetagger_bin = find_binary(
-                treetagger_bin_name, path_to_home,
-                env_vars=('TREETAGGER', 'TREETAGGER_HOME'),
+                treetagger_bin_name,
                 searchpath=treetagger_paths,
                 url=_treetagger_url,
                 verbose=verbose)
         except LookupError:
             print('NLTK was unable to find the TreeTagger bin!')
+
+    def get_treetagger_path(self):
+        if 'TREETAGGER_HOME' in os.environ:
+            print('Environment variable \'TREETAGGER_HOME\' is ' + os.environ['TREETAGGER_HOME'])
+        else:
+            print('Environment variable \'TREETAGGER_HOME\' not set')
+
+        if self._path_to_treetagger:
+            print('Path to TreeTagger is ' + self._path_to_treetagger)
+        else:
+            print('Path to TreeTagger not set')
+
+    def get_installed_lang(self):
+        if 'TREETAGGER_HOME' in os.environ:
+            lang_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'lib'))
+            return [file[:-9] for file in files(lang_path, "*-utf8.par")]
+        elif self._path_to_treetagger:
+            lang_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'lib'))
+            return [file[:-9] for file in files(lang_path, "*-utf8.par")]
+        else:
+            return []
 
     def tag(self, sentences):
         """Tags a single sentence: a list of words.
@@ -114,13 +155,12 @@ class TreeTagger(TaggerI):
 
         # Run the tagger and get the output
         if(self._abbr_list is None):
-            p = Popen([self._treetagger_bin], 
+            p = Popen([self._treetagger_bin],
                         shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         elif(self._abbr_list is not None):
-            p = Popen([self._treetagger_bin,"-a",self._abbr_list], 
+            p = Popen([self._treetagger_bin,"-a",self._abbr_list],
                         shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        
-        #(stdout, stderr) = p.communicate(bytes(_input, 'UTF-8'))
+
         (stdout, stderr) = p.communicate(str(_input).encode('utf-8'))
 
         # Check the return code.

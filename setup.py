@@ -11,7 +11,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 
 setup(name='treetagger',
-      version='1.0.1',
+      version='1.1.0',
       description='A Python module for interfacing with the Treetagger by Helmut Schmid.',
       long_description=README,
       author='Mirko Otto',
