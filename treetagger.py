@@ -135,10 +135,10 @@ class TreeTagger(TaggerI):
     def get_installed_lang(self):
         if 'TREETAGGER_HOME' in os.environ:
             lang_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'lib'))
-            return [file[:-9] for file in files(lang_path, "*-utf8.par")]
+            return [file[:-4] for file in files(lang_path, "*.par")]
         elif self._path_to_treetagger:
             lang_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'lib'))
-            return [file[:-9] for file in files(lang_path, "*-utf8.par")]
+            return [file[:-4] for file in files(lang_path, "*.par")]
         else:
             return []
 
