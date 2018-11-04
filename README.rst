@@ -69,6 +69,9 @@ Initialize by specifying the path ``path_to_treetagger``:
     from treetagger import TreeTagger
     tt = TreeTagger(path_to_treetagger='/path/to/your/TreeTagger/')
 
+Usage TreeTagger
+^^^^^^^^^^^^^^^^
+
 Show the installed languages:
 
 ::
@@ -126,3 +129,80 @@ The output is a list of [token, tag, lemma]:
     ['hübschen', 'ADJA', 'hübsch'], 
     ['Garten', 'NN', 'Garten'], 
     ['.', '$.', '.']]
+
+Usage TreeTaggerChunker
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Initialize by specifying the path ``path_to_treetagger``:
+
+::
+
+    from treetagger import TreeTaggerChunker
+    ttc = TreeTaggerChunker(path_to_treetagger='/path/to/your/TreeTagger/')
+
+Show the installed languages:
+
+::
+
+    from treetagger import TreeTaggerChunker
+    ttc = TreeTaggerChunker(path_to_treetagger='/path/to/your/TreeTagger/')
+    ttc.get_installed_lang()
+
+The output could look like this
+
+::
+
+    ['english', 'german']
+
+Chunk a sentence from Python:
+
+::
+
+    from treetagger import TreeTaggerChunker
+    ttc = TreeTaggerChunker(path_to_treetagger='/path/to/your/TreeTagger/')
+    ttc.parse('What is the airspeed of an unladen swallow?')
+
+
+The output is a list of a chunk structure with [token, tag, lemma]:
+
+::
+
+    [['<NC>'], ['What', 'WP', 'what'], ['</NC>'], ['<VC>'], ['is', 'VBZ', 'be'], ['</VC>'], ['<NC>'], ['the', 'DT', 'the'], ['airspeed', 'NN', 'airspeed'], ['</NC>'], ['<PC>'], ['of', 'IN', 'of'], ['<NC>'], ['an', 'DT', 'an'], ['unladen', 'JJ', '<unknown>'], ['swallow', 'NN', 'swallow'], ['</NC>'], ['</PC>'], ['?', 'SENT', '?']]
+
+Chunk a sentence in a tree from Python:
+
+::
+
+    from treetagger import TreeTaggerChunker
+    ttc = TreeTaggerChunker(path_to_treetagger='/path/to/your/TreeTagger/')
+    ttc.parse_to_tree('What is the airspeed of an unladen swallow?')
+
+
+The output is a chunk structure as a nltk tree:
+
+::
+
+    Tree('S', [Tree('NC', [Tree('What', ['WP'])]), Tree('VC', [Tree('is', ['VBZ'])]), Tree('NC', [Tree('the', ['DT']), Tree('airspeed', ['NN'])]), Tree('PC', [Tree('of', ['IN']), Tree('NC', [Tree('an', ['DT']), Tree('unladen', ['JJ']), Tree('swallow', ['NN'])])]), Tree('?', ['SENT'])])
+
+Chunk a sentence in a tree from Python:
+
+::
+
+    from nltk.tree import Tree
+    from treetagger import TreeTaggerChunker
+    ttc = TreeTaggerChunker(path_to_treetagger='/path/to/your/TreeTagger/')
+    ttc_tree = ttc.parse_to_tree('What is the airspeed of an unladen swallow?')
+    print(ttc_tree)
+
+
+The output is a chunk structure as a nltk tree:
+
+::
+
+    (S
+      (NC (What WP))
+      (VC (is VBZ))
+      (NC (the DT) (airspeed NN))
+      (PC (of IN) (NC (an DT) (unladen JJ) (swallow NN)))
+      (? SENT))
+
