@@ -90,13 +90,13 @@ class TreeTagger(TaggerI):
         treetagger_paths = ['.']
         if 'TREETAGGER_HOME' in os.environ:
             if _platform == "win32":
-                tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'bat'))
+                tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'bin'))
             else:
                 tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'cmd'))
             treetagger_paths.append(tt_path)
         elif self._path_to_treetagger:
             if _platform == "win32":
-                tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'bat'))
+                tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'bin'))
             else:
                 tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'cmd'))
             treetagger_paths.append(tt_path)
