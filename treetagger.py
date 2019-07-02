@@ -89,13 +89,13 @@ class TreeTagger(TaggerI):
 
         treetagger_paths = ['.']
         if 'TREETAGGER_HOME' in os.environ:
-            if _platform == "win32":
+            if _platform.startswith('win'):
                 tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'bin'))
             else:
                 tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'cmd'))
             treetagger_paths.append(tt_path)
         elif self._path_to_treetagger:
-            if _platform == "win32":
+            if _platform.startswith('win'):
                 tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'bin'))
             else:
                 tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'cmd'))
@@ -107,8 +107,8 @@ class TreeTagger(TaggerI):
         self._abbr_list = abbreviation_list
 
         if language in self.get_installed_lang():
-            if _platform == "win32":
-                treetagger_bin_name = 'tag-' + language + '.bat'
+            if _platform.startswith('win'):
+                treetagger_bin_name = 'tag-' + language
             else:
                 treetagger_bin_name = 'tree-tagger-' + language
         else:
@@ -244,13 +244,13 @@ class TreeTaggerChunker(ChunkParserI):
 
         treetagger_paths = ['.']
         if 'TREETAGGER_HOME' in os.environ:
-            if _platform == "win32":
+            if _platform.startswith('win'):
                 tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'bat'))
             else:
                 tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'cmd'))
             treetagger_paths.append(tt_path)
         elif self._path_to_treetagger:
-            if _platform == "win32":
+            if _platform.startswith('win'):
                 tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'bat'))
             else:
                 tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'cmd'))
@@ -262,8 +262,8 @@ class TreeTaggerChunker(ChunkParserI):
         self._abbr_list = abbreviation_list
 
         if language in self.get_installed_lang():
-            if _platform == "win32":
-                treetagger_chunker_bin_name = 'chunk-' + language + '.bat'
+            if _platform.startswith('win'):
+                treetagger_chunker_bin_name = 'chunk-' + language
             else:
                 treetagger_chunker_bin_name = 'tagger-chunker-' + language
         else:
