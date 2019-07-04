@@ -108,7 +108,7 @@ class TreeTagger(TaggerI):
 
         if language in self.get_installed_lang():
             if _platform.startswith('win'):
-                treetagger_bin_name = 'tag-' + language
+                treetagger_bin_name = 'tag-' + language + '.bat'
             else:
                 treetagger_bin_name = 'tree-tagger-' + language
         else:
@@ -263,7 +263,7 @@ class TreeTaggerChunker(ChunkParserI):
 
         if language in self.get_installed_lang():
             if _platform.startswith('win'):
-                treetagger_chunker_bin_name = 'chunk-' + language
+                treetagger_chunker_bin_name = 'chunk-' + language + '.bat'
             else:
                 treetagger_chunker_bin_name = 'tagger-chunker-' + language
         else:
