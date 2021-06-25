@@ -10,12 +10,12 @@ For license information, see LICENSE.txt
 Dependencies
 ------------
 
--  `TreeTagger <http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/>`__ (The names of the parametres Files of the TreeTagger program have changed, use the version after the 16th of October, 2018)
+-  `TreeTagger <http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/>`__ (The names of the parametres Files of the TreeTagger program have changed, use the version after the 16th of October 2018; Since October 2020, it seems that the data must now be transferred to the TreeTagger programme as files.)
 -  Python 3
 -  `NLTK <http://nltk.org/>`__
 -  treetagger.py is for Python 3
 
-Tested with Treetagger 3.2 (version after the 16th of October, 2018), Python 3.6 and NLTK 3.3.0 on Ubuntu 18.04, OSX 10.13
+Tested in June 2021 with TreeTagger 3.2.3 (versions after October 2020), Python 3.9.5 and NLTK 3.6.2 on Ubuntu 20.04, OSX 10.15 and Windows 10
 
 Preparation
 ------------

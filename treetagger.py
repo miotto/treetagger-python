@@ -8,7 +8,7 @@
 A Python module for interfacing with the Treetagger by Helmut Schmid.
 """
 
-import os, fnmatch, re
+import os, tempfile, fnmatch, re
 from subprocess import Popen, PIPE
 
 from nltk.internals import find_binary, find_file
@@ -16,6 +16,7 @@ from nltk.tag.api import TaggerI
 from nltk.chunk.api import ChunkParserI
 from nltk.tree import Tree
 from sys import platform as _platform
+import sys
 
 _treetagger_url = 'http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/'
 
@@ -40,15 +41,7 @@ class TreeTagger(TaggerI):
         >>> from treetagger import TreeTagger
         >>> tt = TreeTagger(language='english')
         >>> tt.tag('What is the airspeed of an unladen swallow?')
-        [['What', 'WP', 'what'],
-         ['is', 'VBZ', 'be'],
-         ['the', 'DT', 'the'],
-         ['airspeed', 'NN', 'airspeed'],
-         ['of', 'IN', 'of'],
-         ['an', 'DT', 'an'],
-         ['unladen', 'JJ', '<unknown>'],
-         ['swallow', 'NN', 'swallow'],
-         ['?', 'SENT', '?']]
+        [['What', 'WP', 'what'], ['is', 'VBZ', 'be'], ['the', 'DT', 'the'], ['airspeed', 'NN', 'airspeed'], ['of', 'IN', 'of'], ['an', 'DT', 'an'], ['unladen', 'JJ', '<unknown>'], ['swallow', 'NN', 'swallow'], ['?', 'SENT', '?']]
 
     .. doctest::
         :options: +SKIP
@@ -56,14 +49,7 @@ class TreeTagger(TaggerI):
         >>> from treetagger import TreeTagger
         >>> tt = TreeTagger(language='german')
         >>> tt.tag('Das Haus hat einen großen hübschen Garten.')
-        [['Das', 'ART', 'die'],
-         ['Haus', 'NN', 'Haus'],
-         ['hat', 'VAFIN', 'haben'],
-         ['einen', 'ART', 'eine'],
-         ['großen', 'ADJA', 'groß'],
-         ['hübschen', 'ADJA', 'hübsch'],
-         ['Garten', 'NN', 'Garten'],
-         ['.', '$.', '.']]
+        [['Das', 'ART', 'die'], ['Haus', 'NN', 'Haus'], ['hat', 'VAFIN', 'haben'], ['einen', 'ART', 'eine'], ['großen', 'ADJA', 'groß'], ['hübschen', 'ADJA', 'hübsch'], ['Garten', 'NN', 'Garten'], ['.', '$.', '.']]
     """
 
 
@@ -155,28 +141,38 @@ class TreeTagger(TaggerI):
         else:
             _input = sentences
 
-        # Run the tagger and get the output
-        if(self._abbr_list is None):
-            p = Popen([self._treetagger_bin],
-                        shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        elif(self._abbr_list is not None):
-            p = Popen([self._treetagger_bin,"-a",self._abbr_list],
-                        shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        outfile = tempfile.NamedTemporaryFile(mode="w+", encoding="utf8", delete=False)
 
-        (stdout, stderr) = p.communicate(str(_input).encode('utf-8'))
+        with tempfile.NamedTemporaryFile(mode="w+", encoding="utf8", delete=False) as infile:
+            infile.write(_input)
+            infile.flush()
+
+            # Run the tagger and get the output
+            if(self._abbr_list is None):
+                p = Popen([self._treetagger_bin, infile.name],
+                        shell=False, stdin=PIPE, stdout=outfile, stderr=PIPE)
+            elif(self._abbr_list is not None):
+                p = Popen([self._treetagger_bin,"-a",self._abbr_list, infile.name],
+                        shell=False, stdin=PIPE, stdout=outfile, stderr=PIPE)
+            (stdout, stderr) = p.communicate()
 
         # Check the return code.
         if p.returncode != 0:
             print(stderr)
             raise OSError('TreeTagger command failed!')
 
-        treetagger_output = stdout.decode('UTF-8')
+        infile.close()
+        os.unlink(infile.name)
 
-        # Output the tagged sentences
+        outfile.seek(0)
         tagged_sentences = []
-        for tagged_word in treetagger_output.strip().split('\n'):
+        for line in outfile:
+            tagged_word = line.rstrip('\n')
             tagged_word_split = tagged_word.split('\t')
             tagged_sentences.append(tagged_word_split)
+
+        outfile.close()
+        os.unlink(outfile.name)
 
         return tagged_sentences
 
@@ -245,13 +241,13 @@ class TreeTaggerChunker(ChunkParserI):
         treetagger_paths = ['.']
         if 'TREETAGGER_HOME' in os.environ:
             if _platform.startswith('win'):
-                tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'bat'))
+                tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'bin'))
             else:
                 tt_path = os.path.normpath(os.path.join(os.environ['TREETAGGER_HOME'], 'cmd'))
             treetagger_paths.append(tt_path)
         elif self._path_to_treetagger:
             if _platform.startswith('win'):
-                tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'bat'))
+                tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'bin'))
             else:
                 tt_path = os.path.normpath(os.path.join(self._path_to_treetagger, 'cmd'))
             treetagger_paths.append(tt_path)
@@ -314,28 +310,39 @@ class TreeTaggerChunker(ChunkParserI):
         else:
             _input = tokens
 
-        # Run the tagger chunker and get the output
-        if(self._abbr_list is None):
-            p = Popen([self._treetagger_chunker_bin],
-                        shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        elif(self._abbr_list is not None):
-            p = Popen([self._treetagger_chunker_bin,"-a",self._abbr_list],
-                        shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        outfile = tempfile.NamedTemporaryFile(mode="w+", encoding="utf8", delete=False)
 
-        (stdout, stderr) = p.communicate(str(_input).encode('utf-8'))
+        with tempfile.NamedTemporaryFile(mode="w+", encoding="utf8", delete=False) as infile:
+            infile.write(_input)
+            infile.flush()
+
+            # Run the tagger and get the output
+            if(self._abbr_list is None):
+                p = Popen([self._treetagger_chunker_bin, infile.name],
+                        shell=False, stdin=PIPE, stdout=outfile, stderr=PIPE)
+            elif(self._abbr_list is not None):
+                p = Popen([self._treetagger_chunker_bin,"-a",self._abbr_list, infile.name],
+                        shell=False, stdin=PIPE, stdout=outfile, stderr=PIPE)
+            (stdout, stderr) = p.communicate()
 
         # Check the return code.
         if p.returncode != 0:
             print(stderr)
             raise OSError('TreeTaggerChunker command failed!')
 
-        treetagger_chunker_output = stdout.decode('UTF-8')
+        infile.close()
+        os.unlink(infile.name)
 
         # Output the tagged ans chunked sentences
+        outfile.seek(0)
         tagged_chunked_sentences = []
-        for tagged_word in treetagger_chunker_output.strip().split('\n'):
+        for line in outfile:
+            tagged_word = line.rstrip('\n')
             tagged_word_split = tagged_word.split('\t')
             tagged_chunked_sentences.append(tagged_word_split)
+
+        outfile.close()
+        os.unlink(outfile.name)
 
         return tagged_chunked_sentences
 
